@@ -1,3 +1,11 @@
+flask
+flask-cors
+flask-limiter
+langdetect
+numpy
+nltk
+keras
+autocorrect
 Flask==3.0.0
 Flask-Limiter==3.5.0
 Flask-Cors==4.0.0

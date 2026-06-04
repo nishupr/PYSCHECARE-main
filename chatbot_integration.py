@@ -195,18 +195,27 @@ def get_chatbot_response(message, user_id="000"):
 def detect_language(text):
     """
     Detect the language of the input text.
-    
+    Falls back to English for short strings or when langdetect is unavailable.
+
     Args:
         text (str): The input text
-    
+
     Returns:
         str: The detected language code
     """
+    if len(text.strip()) < 15:
+        return "en"  # Too short to detect reliably
+
     try:
         from langdetect import detect
-        return detect(text)
-    except:
-        return "en"  # Default to English
+        from langdetect.lang_detect_exception import LangDetectException
+        try:
+            return detect(text)
+        except LangDetectException:
+            return "en"
+    except ImportError:
+        logging.error("langdetect is not installed. Language filtering is disabled.")
+        return "en"
 
 # Initialize the chatbot model when this module is imported
 load_chatbot_model()
