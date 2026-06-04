@@ -33,7 +33,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Ensure table exists
         $db->exec(
             "CREATE TABLE IF NOT EXISTS users " .
-            "(id INTEGER PRIMARY KEY, username TEXT UNIQUE, password_hash TEXT)"
+            "(id INTEGER PRIMARY KEY, username TEXT UNIQUE, email TEXT UNIQUE, password_hash TEXT)"
         );
 
         // Check if username already exists
@@ -49,10 +49,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         // Insert new user
         $stmt = $db->prepare(
-            "INSERT INTO users (username, password_hash) VALUES (:username, :password_hash)"
+            "INSERT INTO users (username, email, password_hash) VALUES (:username, :email, :password_hash)"
         );
         $stmt->execute([
             ':username' => $username,
+            ':email' => $email,
             ':password_hash' => $password_hash
         ]);
 
