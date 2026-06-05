@@ -57,16 +57,16 @@ To run this project locally, you will need:
 ---
 ## 📚  Quick Start for Contributors:
 If you're new to the project, follow this order:
-   - Read this README.md for project overview.
-   - Check CONTRIBUTING.md for contribution guidelines.
-   - Review chatbot_integration_README.md for      chatbot-related functionality.
-   - Install dependencies listed in requirements.txt.
-   - Run the application using app.py.
+- Read this README.md for project overview.
+- Check CONTRIBUTING.md for contribution guidelines.
+- Review chatbot_integration_README.md for      chatbot-related functionality.
+- Install dependencies listed in requirements.txt.
+- Run the application using app.py.
 ---
-  ### Useful Resources
-    - [Contribution Guide](CONTRIBUTING.md)
-    - [Chatbot Integration Guide](chatbot_integration_README.md)
-    - [Requirements](requirements.txt)
+### Useful Resources
+- [Contribution Guide](CONTRIBUTING.md)
+- [Chatbot Integration Guide](chatbot_integration_README.md)
+- [Requirements](requirements.txt)
 ---
   
 ## 📄 Project Files Overview
