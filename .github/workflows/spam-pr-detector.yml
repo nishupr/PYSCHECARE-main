@@ -41,6 +41,9 @@ jobs:
             //  CONDITION C — Empty or missing PR description
             //    • PR body is empty or shorter than 20 characters.
             //
+            //  CONDITION C — Empty or missing PR description
+            //    • PR body is empty or shorter than 20 characters.
+            //
             //  ACTION:
             //    • First offence        → add "spam" label + warning comment
             //    • Spam label present   → close PR + comment
@@ -193,6 +196,12 @@ jobs:
                 `- **Documentation-only change without \`type:docs\` label**: This PR only modifies ` +
                 `documentation files (\`README.md\`, \`CONTRIBUTING.md\`, \`CHANGELOG.md\`). ` +
                 `Please add the \`type:docs\` label so maintainers can triage it correctly.`
+              );
+            if (condC)
+              reasons.push(
+                `- **Missing or empty PR description**: Your PR description is too short ` +
+                `(**${prBody.length} character(s)**). Please describe what changes you made and why. ` +
+                `A good description helps maintainers understand and review your work faster.`
               );
             if (condC)
               reasons.push(
