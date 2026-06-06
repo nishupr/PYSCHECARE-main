@@ -50,7 +50,13 @@ document.addEventListener("DOMContentLoaded", () => {
     // =====================================================
     // 3. CACHED PREFERENCES RECOVERY
     // =====================================================
-    const savedFont = localStorage.getItem("fontSize") || "medium";
+    const allowedFonts = ["small", "medium", "large"];
+
+    let savedFont = localStorage.getItem("fontSize");
+
+    if (!allowedFonts.includes(savedFont)) {
+        savedFont = "medium";
+    }
     const savedContrast = localStorage.getItem("contrastMode") === "true";
     const savedFocus = localStorage.getItem("focusMode") === "true";
 
@@ -105,7 +111,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Outside document click closer logic
     document.addEventListener("click", (e) => {
-        if (accessibilityPanel && !accessibilityPanel.contains(e.target) && e.target !== accessibilityBtn) {
+        if (accessibilityPanel && !accessibilityPanel.contains(e.target) && !accessibilityBtn?.contains(e.target)) {
             accessibilityPanel.classList.remove("show");
             accessibilityBtn?.setAttribute("aria-expanded", "false");
             accessibilityPanel.setAttribute("aria-hidden", "true");
