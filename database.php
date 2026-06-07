@@ -60,29 +60,16 @@ function getIPAddress(): string
     }
 }
 
-function checkRateLimit(PDO $db, string $key, int $maxAttempts, int $windowSeconds): bool
-{
-    $stmt = $db->prepare("SELECT attempts, last_attempt FROM rate_limiting WHERE rate_key = :key");
-    $stmt->execute([':key' => $key]);
-    $row = $stmt->fetch();
-
-    if (!$row) {
-        return true;
-    }
-
-    $now = time();
-    if ($now - $row['last_attempt'] > $windowSeconds) {
-        // Window expired, reset automatically
-        resetAttempts($db, $key);
-        return true;
-    }
-
-    return $row['attempts'] < $maxAttempts;
-}
-
-function incrementAttempts(PDO $db, string $key): void
+function enforceRateLimit(PDO $db, string $key, int $maxAttempts, int $windowSeconds): bool
 {
     $now = time();
+    $expired = $now - $windowSeconds;
+
+    // 1. Clean up expired attempts
+    $stmt = $db->prepare("DELETE FROM rate_limiting WHERE rate_key = :key AND last_attempt <= :expired");
+    $stmt->execute([':key' => $key, ':expired' => $expired]);
+
+    // 2. Increment atomically
     $stmt = $db->prepare("
         INSERT INTO rate_limiting (rate_key, attempts, last_attempt) 
         VALUES (:key, 1, :now)
@@ -91,6 +78,13 @@ function incrementAttempts(PDO $db, string $key): void
             last_attempt = :now
     ");
     $stmt->execute([':key' => $key, ':now' => $now]);
+
+    // 3. Read back the new atomic value
+    $stmt = $db->prepare("SELECT attempts FROM rate_limiting WHERE rate_key = :key");
+    $stmt->execute([':key' => $key]);
+    $row = $stmt->fetch();
+
+    return ($row && $row['attempts'] <= $maxAttempts);
 }
 
 function resetAttempts(PDO $db, string $key): void
