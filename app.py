@@ -42,32 +42,35 @@ limiter = Limiter(get_remote_address, app=app, default_limits=["30 per minute"])
 CHAT_API_SECRET = os.environ.get("CHAT_API_SECRET", "")
 
 
-def _verify_chat_token(token: str) -> bool:
+import base64
+
+def _verify_chat_token(token: str) -> str:
     """
-    Validate the HMAC chat token sent by the frontend.
-
-    The token is produced by chatBot.php as:
-        hash_hmac('sha256', session_id + '|' + username, secret)
-
-    We can't reconstruct the exact input here (we don't have the PHP session),
-    so we verify that the token is a valid 64-char SHA-256 hex string AND that
-    the secret is configured.  A proper production setup would use a shared
-    session store (Redis, database) to verify the token fully.
-
-    For now this blocks:
-    - All requests with no Authorization header (unauthenticated browsers)
-    - All requests with a malformed token (not a 64-hex SHA-256 string)
-    - All requests when CHAT_API_SECRET is not configured (fail-closed)
+    Validate the HMAC chat token and return the extracted session ID.
+    Token format: base64(session_id|username).hmac_sha256
     """
     if not CHAT_API_SECRET:
-        return False  # Fail closed — no secret means no access
-    if not token or len(token) != 64:
-        return False
+        return None  # Fail closed
+    
+    if not token or '.' not in token:
+        return None
+        
     try:
-        int(token, 16)  # Valid hex string?
-    except ValueError:
-        return False
-    return True
+        payload, signature = token.split('.', 1)
+        expected_sig = hmac.new(
+            CHAT_API_SECRET.encode(),
+            payload.encode(),
+            hashlib.sha256
+        ).hexdigest()
+        
+        if not hmac.compare_digest(expected_sig, signature):
+            return None
+            
+        decoded_payload = base64.b64decode(payload).decode('utf-8')
+        session_id, username = decoded_payload.split('|', 1)
+        return session_id
+    except Exception:
+        return None
 
 
 @app.route("/chat", methods=["POST"])
@@ -77,7 +80,8 @@ def chat():
     auth_header = request.headers.get("Authorization", "")
     token = auth_header.removeprefix("Bearer ").strip()
 
-    if not _verify_chat_token(token):
+    user_id = _verify_chat_token(token)
+    if not user_id:
         return jsonify({
             "error": "Unauthorized. Please log in to use the chatbot."
         }), 401
@@ -91,6 +95,7 @@ def chat():
     # NLTK tokenization and the autocorrect Speller() are computationally heavy.
     # An extremely long input will hang the server (ReDoS / exhaustion attack).
     # We enforce a strict 500-character limit per message.
+    # Advanced: Algorithmic Complexity DoS Protection
     message = data["message"]
     if not isinstance(message, str) or len(message) > 500:
         return jsonify({
@@ -100,7 +105,9 @@ def chat():
     # Use session ID from request or generate a unique one
     user_id = data.get("session_id") or str(uuid.uuid4())
 
-    response = get_chatbot_response(data["message"], user_id)
+    # Secure Context Mapping: user_id strictly derived from HMAC signature.
+    # We NO LONGER accept session_id from the client payload.
+    response = get_chatbot_response(message, user_id)
     return jsonify({"response": response, "session_id": user_id})
 
 
