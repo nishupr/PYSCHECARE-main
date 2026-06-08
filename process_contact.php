@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/session_config.php';
+require_once __DIR__ . '/validation.php';
 session_start();
 
 if (empty($_SESSION['csrf_token'])) {
@@ -14,16 +15,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         die("Invalid CSRF token.");
     }
 
-    $name    = htmlspecialchars(trim($_POST['name'] ?? ''));
-    $email   = htmlspecialchars(trim($_POST['email'] ?? ''));
-    $message = htmlspecialchars(trim($_POST['message'] ?? ''));
+    $name    = trim($_POST['name'] ?? '');
+    $email   = trim($_POST['email'] ?? '');
+    $message = trim($_POST['message'] ?? '');
 
-    if (!$name || !$email || !$message) {
-        die("All fields are required.");
-    }
-
-    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        die("Invalid email address.");
+    $validationError = validateContactInput($name, $email, $message);
+    if ($validationError !== null) {
+        http_response_code(400);
+        die($validationError);
     }
 
     try {
@@ -37,7 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ':message' => $message
         ]);
 
-        echo "Message received. Thank you, $name!";
+        echo "Message received. Thank you, " . htmlspecialchars($name, ENT_QUOTES, 'UTF-8') . "!";
     } catch (PDOException $e) {
         http_response_code(500);
         die("Database error. Please try again later.");
