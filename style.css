@@ -58,7 +58,8 @@ p::selection{
 
 @media(max-height:655px){
     .main{
-        height:auto;
+        min-height: 100vh;
+        height: auto;
         padding-bottom: 4em;
     }
 }
@@ -178,7 +179,9 @@ p::selection{
     }
 
     .header{
-        padding:1.5em 0;
+        padding: 1em 0.5em;
+        margin-top: 10px;
+        width: 98%;
     }
 
     .hamburger{
@@ -672,13 +675,27 @@ p::selection{
     .main{
         background-image: url("Images/illustration-new/illus.png");
         background-size: cover;
+        background-position: center;
         background-color: var(--lightvarient-darkColor);
         background-blend-mode: multiply;
+        min-height: 100vh;
+        height: auto;
+        padding-bottom: 2em;
+    }
+
+    .content-container{
+        width: 90%;
+        margin-top: 50%;
+        margin-left: auto;
+        margin-right: auto;
+        padding: 0 1em 1rem;
     }
 
     .content-head{
-        font-size: 2.5em;
+        font-size: 2em;
         color:var(--black-color);
+        margin-top: 0.4em;
+        line-height: 1.2em;
     }
 
     .content-head span{
@@ -687,20 +704,27 @@ p::selection{
 
     .quote{
         color: var(--light-color);
+        font-size: 0.95em;
+        line-height: 1.4em;
     }
 
     .content-2{
         color: var(--light-color);
+        font-size: 0.9em;
     }
 
     .explore-btn{
         background-color: var(--primary-color);
         border-color: var(--primary-color);
+        padding: 0.6em 1.1em;
+        font-size: 0.85em;
     }
 
     .blog-btn{
         border-color:var(--primary-color) ;
         color:var(--primary-color);
+        padding: 0.6em 1.1em;
+        font-size: 0.85em;
     }
 
     .explore-btn:hover,
@@ -712,37 +736,76 @@ p::selection{
     .blog-btn:hover,
     .blog-btn:focus{
         background-color: var(--primary-color);
-        
+        color: var(--light-color);
     }
 
     .content-quote-cont{
-        width:30ch;
-    }
-
-    .content-head{
-        margin-top:2.5em;
+        width: 100%;
+        max-width: 100%;
+        padding: 1.2rem;
     }
 
     .content-2{
-        padding-top: 5em;
-        width:30ch;
+        padding: 1.2rem;
+        width: 100%;
+        max-width: 100%;
+        margin-top: 1.5em;
     }
 
     .explore-btn-cont {
         display: flex;
         flex-direction: row;
-        flex-wrap: wrap;
+        gap: 1rem;
+        width: 100%;
+        margin-top: 1em;
     }
     
     .explore-btn, .blog-btn {
-        margin-bottom: 0.5rem;
+        width: 100%;
+        margin-bottom: 0;
+        margin-right: 0;
+        text-align: center;
+    }
+
+    .animated-underline {
+        width: 80px;
     }
 }
 
 @media (max-width: 500px) {
+    .header {
+        padding: 0.8em 0.5em;
+        margin-top: 10px;
+        top: 10px;
+    }
+
+    .logo {
+        font-size: 1.4em;
+    }
+
+    .content-head{
+        font-size: 1.6em;
+    }
+
+    .content-container {
+        width: 95%;
+        margin-left: auto;
+        margin-right: auto;
+        padding: 0 0.5em;
+        margin-top:75%;
+    }
+
+    .content-quote-cont{
+        padding: 1em;
+    }
+
+    .content-2 {
+        padding: 1em;
+    }
+
     .explore-btn-cont {
-        flex-direction: column;
-        align-items: flex-start;
+        flex-direction: row;
+        gap: 0.8rem;
     }
     
     .explore-btn,
@@ -750,17 +813,68 @@ p::selection{
         width: 100%;
         margin-right: 0;
         text-align: center;
+        padding: 0.5em 1em;
+        font-size: 0.8em;
+    }
+
+    .floating-shapes {
+        display: none;
     }
 }
 
 @media(max-width:400px){
     .main{
-        background-position-x: -40px;
+        background-position-x: center;
         background-repeat: no-repeat;
+        background-size: cover;
+    }
+
+    .header {
+        width: 98%;
+        padding: 0.6em 0.3em;
+    }
+
+    .logo {
+        font-size: 1.2em;
+    }
+
+    .nav-ul {
+        padding: 0.3em;
+    }
+
+    .nav-ul li {
+        padding: 0.2em 0.5em;
+    }
+
+    .nav-ul li a {
+        font-size: 0.75em;
+        padding: 0.4em 0.6em;
     }
 
     .content-head{
-        font-size:1.8em;
+        font-size: 1.4em;
+        margin-top: 0.8em;
+    }
+
+    .content-quote-cont {
+        padding: 0.9em;
+    }
+
+    .content-container {
+        margin-top:50%;
+    }
+
+    .content-2 {
+        padding: 0.9em;
+        margin-top: 1em;
+    }
+
+    .quote {
+        font-size: 0.85em;
+    }
+
+    .content-2 {
+        font-size: 0.85em;
     }
 }
 
@@ -1005,7 +1119,91 @@ p::selection{
     transform: translateY(0);
 }
 
+/* Mobile view for section-2 */
+@media(max-width:690px){
+    .section-2{
+        max-width: 100%;
+        margin: 1rem 0;
+        border-radius: 0;
+        padding: 1.5em 0;
+    }
 
+    .section-2-head-cont{
+        padding: 2em 1em 1em 1em;
+    }
+
+    .section-2-head{
+        font-size: 1.1em;
+    }
+
+    .card-container{
+        width: 90%;
+        padding: 1em 0 0 0;
+    }
+
+    .card{
+        width: 130px;
+        height: 200px;
+        margin: 0.8em 0.3em;
+    }
+
+    .more-content-card-cont{
+        width: 95%;
+    }
+
+    .actual-card{
+        padding: 1.2em;
+        margin: 0.4em;
+    }
+}
+
+@media(max-width:500px){
+    .section-2{
+        padding: 1em 0;
+    }
+
+    .section-2-head-cont{
+        padding: 1.5em 1em 0.8em 1em;
+    }
+
+    .section-2-head{
+        font-size: 0.95em;
+        line-height: 1.3em;
+    }
+
+    .card-container{
+        width: 100%;
+        padding: 0.8em 0;
+    }
+
+    .card{
+        width: 110px;
+        height: 180px;
+        margin: 0.6em 0.25em;
+    }
+
+    .card-head{
+        font-size: 0.9em;
+    }
+
+    .card-text{
+        font-size: 0.65em;
+    }
+
+    .more-content-card-cont{
+        width: 100%;
+        padding: 0.3em;
+    }
+
+    .actual-card{
+        padding: 1em;
+        margin: 0.3em;
+    }
+
+    .more-card-content p{
+        font-size: 0.8em;
+    }
+}
 
 
 /* ++++++++++++++++++++++++++++++++++++  section-3 ++++++++++++++++++++++++++++++++++++++ */
@@ -1121,15 +1319,80 @@ p::selection{
 
 @media(max-width:775px){
 
+    .section-3-cont{
+        max-width: 100%;
+        margin: 1.5rem 0;
+        border-radius: 0;
+        padding: 2em 1em;
+        border: none;
+    }
+
     .take-page-content-cont{
         flex-direction: column-reverse;
-
+        border: 3px var(--primary-color);
+        border-style: double;
+        padding: 1.5em;
+        gap: 1.5em;
     }
 
     .talk-page-content{
-        width:100%;
+        width: 100%;
+        padding: 0;
     }
 
+    .talk-page-content h2{
+        font-size: 1.3em;
+    }
+
+    .talk-page-content p{
+        font-size: 0.95em;
+    }
+
+    .take-me-there-btn{
+        font-size: 1.1em;
+    }
+
+    .take-page-img-cont{
+        min-width: 250px;
+        min-height: 250px;
+        width: 100%;
+    }
+}
+
+@media(max-width:500px){
+
+    .section-3-cont{
+        padding: 1.5em 0.8em;
+    }
+
+    .take-page-content-cont{
+        padding: 1.2em;
+        gap: 1em;
+    }
+
+    .talk-page-content h2{
+        font-size: 1.1em;
+        padding-bottom: 0.3em;
+    }
+
+    .talk-page-content p{
+        font-size: 0.85em;
+        padding: 0.2em 0;
+    }
+
+    .take-me-there-btn{
+        font-size: 0.95em;
+        flex-wrap: wrap;
+    }
+
+    .take-there-arrow{
+        margin-left: 0.3em;
+    }
+
+    .take-page-img-cont{
+        min-width: 200px;
+        min-height: 200px;
+    }
 }
 
 
@@ -1267,6 +1530,80 @@ p::selection{
     text-decoration: none;
     color:blue;
     font-size: 1.1em;
+}
+
+/* Mobile view for footer */
+@media(max-width:690px){
+    .footer{
+        padding: 2em 1.5em 0.5em 1.5em;
+    }
+
+    .footer-text-cont{
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1.5em;
+    }
+
+    .footer-text-cont h2{
+        font-size: 1.2em;
+    }
+
+    .footer-text-cont p{
+        font-size: 0.9em;
+        max-width: 100%;
+    }
+
+    .social-icon-cont{
+        flex-direction: column;
+        gap: 1em;
+    }
+
+    .icons ul li{
+        padding: 0.4em 0.8em 0 0;
+    }
+
+    .icons ul li a{
+        font-size: 1.3em;
+    }
+
+    .copy-rights{
+        font-size: 0.75em;
+    }
+
+    .attribute-text{
+        font-size: 0.9em;
+    }
+}
+
+@media(max-width:500px){
+    .footer{
+        padding: 1.5em 1em 0.5em 1em;
+    }
+
+    .footer-text-cont h2{
+        font-size: 1em;
+    }
+
+    .footer-text-cont p{
+        font-size: 0.8em;
+    }
+
+    .footer-logo{
+        font-size: 1.2em;
+    }
+
+    .icons ul li{
+        padding: 0.3em 0.6em 0 0;
+    }
+
+    .icons ul li a{
+        font-size: 1.2em;
+    }
+
+    .actual-author-contribution-cont{
+        width: 90vw;
+        right: 5vw;
+    }
 }
 
 /* Adding fade-in animations for section transitions */

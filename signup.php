@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/session_config.php';
 
 session_start();
 
@@ -43,8 +44,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $ip = getIPAddress();
         $rateKey = "signup:" . $ip;
 
-        // Check rate limit: 3 attempts per hour
-        if (!checkRateLimit($db, $rateKey, 3, 3600)) {
+        // Check AND Increment atomically: 3 attempts per hour
+        if (!enforceRateLimit($db, $rateKey, 3, 3600)) {
             header("Location: signup.html?error=rate_limit");
             exit();
         }
@@ -53,7 +54,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt = $db->prepare("SELECT id FROM users WHERE username = :username");
         $stmt->execute([':username' => $username]);
         if ($stmt->fetch()) {
-            incrementAttempts($db, $rateKey);
             header("Location: signup.html?error=exists");
             exit();
         }
@@ -62,7 +62,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt = $db->prepare("SELECT id FROM users WHERE email = :email");
         $stmt->execute([':email' => $email]);
         if ($stmt->fetch()) {
-            incrementAttempts($db, $rateKey);
             header("Location: signup.html?error=email_exists");
             exit();
         }

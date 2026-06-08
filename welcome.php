@@ -1,9 +1,14 @@
 <?php
+require_once __DIR__ . '/session_config.php';
 session_start();
 
 if (!isset($_SESSION["username"])) {
     header("Location: login.html");
     exit();
+}
+
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 ?>
 <!DOCTYPE html>
@@ -98,6 +103,29 @@ if (!isset($_SESSION["username"])) {
                 padding: 2.2rem 1.25rem;
             }
         }
+        
+        .logout-form {
+            display: inline;
+        }
+        
+        .logout-btn {
+            background: none;
+            border: none;
+            color: #fff;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+            font-size: 1rem;
+            text-transform: uppercase;
+        }
+        
+        .logout-btn:hover {
+            background: rgba(108, 92, 231, 0.2);
+            transform: translateY(-2px);
+        }
     </style>
 </head>
 <body>
@@ -112,7 +140,12 @@ if (!isset($_SESSION["username"])) {
                     <li><a href="otherHTML/chatBot.php">CHAT BOT</a></li>
                     <li><a href="otherHTML/statistics.html">STATISTICS</a></li>
                     <li><a href="contact.html">CONTACT</a></li>
-                    <li><a href="logout.php">LOGOUT</a></li>
+                    <li>
+                        <form method="POST" action="logout.php" class="logout-form">
+                            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
+                            <button type="submit" class="logout-btn">LOGOUT</button>
+                        </form>
+                    </li>
                 </ul>
             </div>
         </div>

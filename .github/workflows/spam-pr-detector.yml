@@ -95,8 +95,11 @@ jobs:
               }
             }
 
-            // ── 2. Fetch PR files ─────────────────────────────────────────
-            const { data: files } = await github.rest.pulls.listFiles({
+            // ── 2. Fetch ALL PR files (paginated) ────────────────────────
+            // Previously used per_page: 100 with no pagination, which silently
+            // ignored files beyond the first 100. Now uses github.paginate() to
+            // fetch every page and get the complete list of changed files.
+            const files = await github.paginate(github.rest.pulls.listFiles, {
               owner, repo, pull_number: prNum, per_page: 100
             });
 
@@ -105,8 +108,9 @@ jobs:
             const filenames    = files.map(f => f.filename.toLowerCase());
             const totalChanges = files.reduce((sum, f) => sum + f.changes, 0);
 
-            console.log(`Files changed : ${filenames.join(', ')}`);
-            console.log(`Total changes : ${totalChanges} lines`);
+            console.log(`Total files changed : ${filenames.length}`);
+            console.log(`Files              : ${filenames.join(', ')}`);
+            console.log(`Total line changes : ${totalChanges}`);
 
             // ── 3. Fetch current labels on PR ─────────────────────────────
             const { data: existingLabels } = await github.rest.issues.listLabelsOnIssue({
@@ -130,9 +134,6 @@ jobs:
 
             // CONDITION B: ALL files are docs-only (matched by path suffix)
             // Covers files in any subdirectory, e.g. docs/README.md, CONTRIBUTING.md
-            // Previously only checked `f === 'readme.md'` which missed:
-            //   - Files in subdirectories (docs/readme.md)
-            //   - Other doc files (contributing.md, changelog.md)
             const DOC_SUFFIXES = ['readme.md', 'contributing.md', 'changelog.md'];
             const isDocFile    = f => DOC_SUFFIXES.some(suffix => f.endsWith(suffix));
             const onlyDocFiles = filenames.length > 0 && filenames.every(isDocFile);
@@ -143,7 +144,7 @@ jobs:
             const condC  = prBody.length < 20;
 
             console.log(`Condition A (tiny+advanced)        : ${condA}`);
-            console.log(`Condition B (docs-only, no label)  : ${condB} — files: ${filenames.join(', ')}`);
+            console.log(`Condition B (docs-only, no label)  : ${condB}`);
             console.log(`Condition C (empty description)    : ${condC} — body length: ${prBody.length}`);
 
             // ── 5. PR passes all checks ───────────────────────────────────
@@ -200,6 +201,7 @@ jobs:
                 `(**${prBody.length} character(s)**). Please describe what changes you made and why. ` +
                 `A good description helps maintainers understand and review your work faster.`
               );
+
             const reasonBlock = reasons.join('\n');
 
             // ── 7. First offence → warn; repeat offence → close ──────────
