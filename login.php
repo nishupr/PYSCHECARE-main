@@ -31,10 +31,8 @@ try {
     $ip  = getIPAddress();
     $rateKey = "login:" . $ip;
 
-    // Check AND Increment atomically: 5 attempts per 15 minutes
-    if (!enforceRateLimit($db, $rateKey, 5, 900)) {
     // ── Layer 1: IP-based rate limit (5 attempts per 15 min per IP) ───────────
-    if (!checkRateLimit($db, $rateKey, 5, 900)) {
+    if (!enforceRateLimit($db, $rateKey, 5, 900)) {
         header("Location: login.html?error=rate_limit");
         exit();
     }
@@ -70,7 +68,6 @@ try {
     // Failed attempt is already recorded atomically by enforceRateLimit.
     // If we reach here, it's just a regular invalid password.
     // ── Record failure ────────────────────────────────────────────────────────
-    incrementAttempts($db, $rateKey);              // IP counter
     if ($user) {
         incrementAccountAttempts($db, $user['id']); // Account counter
     }
