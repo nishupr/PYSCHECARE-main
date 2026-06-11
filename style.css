@@ -950,7 +950,6 @@ p::selection{
 }
 
 .card{
-
     text-align: center;
     width:150px;
     height:250px;
@@ -967,7 +966,10 @@ p::selection{
     cursor: pointer;
     opacity: 0;
     transform: translateY(100px);
-    transition: all 600ms ease-in;
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.18);
+    transition: opacity 600ms ease-in, transform 320ms ease, box-shadow 320ms ease;
+    will-change: transform, box-shadow;
+    backface-visibility: hidden;
 }
 
 .card::after{
@@ -980,8 +982,8 @@ p::selection{
 }
 
 .card:hover,
-.card:focus{
-    box-shadow:0 0 10px var(--black-color);
+.card:focus-within{
+    box-shadow: 0 16px 34px rgba(0, 0, 0, 0.36);
 }
 
 .arrow{
@@ -1117,6 +1119,11 @@ p::selection{
 .appear{
     opacity: 1;
     transform: translateY(0);
+}
+
+.card.appear:hover,
+.card.appear:focus-within{
+    transform: translateY(-12px) scale(1.04);
 }
 
 /* Mobile view for section-2 */
