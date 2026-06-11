@@ -21,6 +21,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $email = trim($_POST["email"] ?? "");
     $password = $_POST["password"] ?? "";
 
+    // Validate inputs
+    if (empty($username) || empty($email) || empty($password)) {
+        header("Location: signup.html?error=empty");
+        exit();
+    }
+
+    // Enforce password complexity server-side (never trust frontend alone)
+    if (strlen($password) < 8 || !preg_match('/[A-Z]/', $password) || !preg_match('/[a-z]/', $password) || !preg_match('/[0-9]/', $password) || !preg_match('/[^a-zA-Z0-9]/', $password)) {
+        header("Location: signup.html?error=weak_password");
+        exit();
+    }
+
+    // Validate email format
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        header("Location: signup.html?error=email");
     $validationError = validateSignupInput($username, $email, $password);
     if ($validationError !== null) {
         header("Location: signup.html?error=" . $validationError);
