@@ -1,5 +1,6 @@
 import json
 import re
+import threading
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -28,6 +29,7 @@ RISK_PHRASES = {
 }
 
 DEFAULT_EVENT_LOG = Path(__file__).resolve().parent / "crisis_events.json"
+_crisis_log_lock = threading.Lock()
 
 
 def _matches_phrase(message: str, phrase: str) -> bool:
@@ -72,12 +74,13 @@ def log_crisis_event(risk: dict, session_id: str, log_path: Path | str = DEFAULT
         "session_id": session_id,
     }
 
-    try:
-        events = json.loads(path.read_text(encoding="utf-8")) if path.exists() else []
-        if not isinstance(events, list):
+    with _crisis_log_lock:
+        try:
+            events = json.loads(path.read_text(encoding="utf-8")) if path.exists() else []
+            if not isinstance(events, list):
+                events = []
+        except (json.JSONDecodeError, OSError):
             events = []
-    except (json.JSONDecodeError, OSError):
-        events = []
 
-    events.append(event)
-    path.write_text(json.dumps(events, indent=2), encoding="utf-8")
+        events.append(event)
+        path.write_text(json.dumps(events, indent=2), encoding="utf-8")

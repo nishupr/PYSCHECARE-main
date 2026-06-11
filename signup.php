@@ -4,6 +4,7 @@ require_once __DIR__ . '/session_config.php';
 session_start();
 
 require_once __DIR__ . '/database.php';
+require_once __DIR__ . '/validation.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Validate CSRF token
@@ -16,25 +17,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     // Get user input
-    $username = trim($_POST["username"]);
-    $email = trim($_POST["email"]);
-    $password = $_POST["password"];
+    $username = trim($_POST["username"] ?? "");
+    $email = trim($_POST["email"] ?? "");
+    $password = $_POST["password"] ?? "";
 
-    // Validate inputs
-    if (empty($username) || empty($email) || empty($password)) {
-        header("Location: signup.html?error=empty");
-        exit();
-    }
-
-    // Enforce minimum password length server-side (never trust frontend alone)
-    if (strlen($password) < 8) {
-        header("Location: signup.html?error=weak_password");
-        exit();
-    }
-
-    // Validate email format
-    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        header("Location: signup.html?error=email");
+    $validationError = validateSignupInput($username, $email, $password);
+    if ($validationError !== null) {
+        header("Location: signup.html?error=" . $validationError);
         exit();
     }
 

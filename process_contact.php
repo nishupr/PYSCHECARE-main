@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/session_config.php';
+require_once __DIR__ . '/validation.php';
 session_start();
 
 if (empty($_SESSION['csrf_token'])) {
