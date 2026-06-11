@@ -8,6 +8,17 @@ import time
 from pathlib import Path
 from typing import Dict
 
+try:
+    from langdetect import detect as _langdetect_detect
+    from langdetect.lang_detect_exception import LangDetectException
+    _langdetect_available = True
+except ImportError:
+    logging.warning(
+        "langdetect is not installed. Language filtering is disabled; "
+        "all messages will be treated as English."
+    )
+    _langdetect_available = False
+
 import nltk
 import numpy as np
 from autocorrect import Speller
@@ -37,6 +48,11 @@ except Exception as e:
 
 # Lemmatizer for processing text
 lemmatizer = WordNetLemmatizer()
+
+# Module-level Speller singleton — instantiating Speller() on every request
+# loads its word corpus from disk each time, adding unnecessary latency per call.
+# A single shared instance is safe: Speller is stateless after initialisation.
+_speller = Speller()
 
 # Define global variables that will be initialized in load_chatbot_model()
 words = []
@@ -193,9 +209,8 @@ def get_chatbot_response(message, user_id="000"):
         return "I currently only speak English, but you can contact our human support team for help in other languages."
 
     try:
-        # Apply spelling correction
-        spell = Speller()
-        corrected_message = spell(message)
+       # Apply spelling correction (uses module-level singleton, not a new instance per call)
+        corrected_message = _speller(message)
         
         # Get predictions
         results = predict_class(corrected_message)
@@ -259,16 +274,11 @@ def detect_language(text):
     if len(text.strip()) < 15:
         return "en"  # Too short to detect reliably
 
-    try:
-        from langdetect import detect
-        from langdetect.lang_detect_exception import LangDetectException
-        try:
-            return detect(text)
-        except LangDetectException:
-            return "en"
-    except ImportError:
-        logging.error("langdetect is not installed. Language filtering is disabled.")
+    if not _langdetect_available:
         return "en"
 
-# Initialize the chatbot model when this module is imported
-load_chatbot_model()
+    try:
+        return _langdetect_detect(text)
+    except LangDetectException:
+        return "en"
+

@@ -31,10 +31,16 @@ function getAuthDatabase(): PDO
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,
             email TEXT NOT NULL,
+            subject TEXT NOT NULL,
             message TEXT NOT NULL,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )"
     );
+
+    $contactCols = array_column($db->query('PRAGMA table_info(contact_messages)')->fetchAll(), 'name');
+    if (!in_array('subject', $contactCols)) {
+        $db->exec('ALTER TABLE contact_messages ADD COLUMN subject TEXT NOT NULL DEFAULT ""');
+    }
 
     $db->exec(
         "CREATE TABLE IF NOT EXISTS rate_limiting (
@@ -49,15 +55,7 @@ function getAuthDatabase(): PDO
 
 function getIPAddress(): string
 {
-    if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
-        return $_SERVER['HTTP_CLIENT_IP'];
-    } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-        // X-Forwarded-For can contain multiple IPs, the first one is the client
-        $ips = explode(',', $_SERVER['HTTP_X_FORWARDED_FOR']);
-        return trim($ips[0]);
-    } else {
-        return $_SERVER['REMOTE_ADDR'] ?? 'unknown';
-    }
+    return $_SERVER['REMOTE_ADDR'] ?? 'unknown';
 }
 
 function enforceRateLimit(PDO $db, string $key, int $maxAttempts, int $windowSeconds): bool
